@@ -40,16 +40,17 @@
       // If they wish to generate new keys.
       $('#generate').click(generateKeys);
       generateKeys();
+
         $('#encrypt').click(function () {
             var crypt = new JSEncrypt();
-            crypt.setPrivateKey($('#publicKey').val());
+            crypt.setPrivateKey($('#pubkey').val());
             var plainText = $("#plainText").val();
             var encryptedText = crypt.encrypt(plainText);
             $('#encryptedText').val(encryptedText);
         });
         $('#decrypt').click(function () {
             var crypt = new JSEncrypt();
-            crypt.setPrivateKey($('#privateKey').val());
+            crypt.setPrivateKey($('#privkey').val());
             var encryptedText = $('#encryptedText').val();
             var decryptedText = crypt.decrypt(encryptedText);
             $('#decryptedText').val(decryptedText);
