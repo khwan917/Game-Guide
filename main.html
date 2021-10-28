@@ -6,6 +6,40 @@
     <script type="text/javascript" src="https://travistidwell.com/jsencrypt/bin/jsencrypt.min.js"></script>
     <script type="text/javascript">
     $(document).ready(function() {
+      var generateKeys = function () {
+        var sKeySize = $('#key-size').attr('data-value');
+        var keySize = parseInt(sKeySize);
+        var crypt = new JSEncrypt({default_key_size: keySize});
+        var async = $('#async-ck').is(':checked');
+        var dt = new Date();
+        var time = -(dt.getTime());
+        if (async) {
+          $('#time-report').text('.');
+          var load = setInterval(function () {
+            var text = $('#time-report').text();
+            $('#time-report').text(text + '.');
+          }, 500);
+          crypt.getKey(function () {
+            clearInterval(load);
+            dt = new Date();
+            time += (dt.getTime());
+            $('#time-report').text('Generated in ' + time + ' ms');
+            $('#privkey').val(crypt.getPrivateKey());
+            $('#pubkey').val(crypt.getPublicKey());
+          });
+          return;
+        }
+        crypt.getKey();
+        dt = new Date();
+        time += (dt.getTime());
+        $('#time-report').text('Generated in ' + time + ' ms');
+        $('#privkey').val(crypt.getPrivateKey());
+        $('#pubkey').val(crypt.getPublicKey());
+      };
+
+      // If they wish to generate new keys.
+      $('#generate').click(generateKeys);
+      generateKeys();
         $('#encrypt').click(function () {
             var crypt = new JSEncrypt();
             crypt.setPrivateKey($('#publicKey').val());
@@ -27,29 +61,10 @@
   <body>
     <div style="display:flex;">
       <div>
-        <label for="privateKey">Private key</label><br />
-        <textarea id="privateKey" cols="66" rows="16">-----BEGIN RSA PRIVATE KEY-----
-        MIICXQIBAAKBgQDLZL7JkIAxVOLqtEZr+SjJZYqS59ARp3/Z/l5Q6AOWryyrCJI4
-        A/4RjFiZ2lN2a08WGgZuYrM+rk7mXmxQdAX1aUTXk9xxZX2YrO9g2TMxpJzrdDD6
-        AKbDSqz9TLx2mBuLFKr+dJXX4FSg6GQF9ZAlP/PxuriRMQ5kbnqGPiMCvwIDAQAB
-        AoGAMlaw0XouAAeeUbBkbXyxF4dGEK3G1Ve7UNyfwy5pFPYt+/aXGb4DN5ygoRNj
-        7L8KR9IRHWjYK/9AD8v2ysKsZmuXNt23ojkKHq5wirSCpO2vb244ApMQAlvZYdoA
-        eUaYjMyq9RLBsPXh8yLAMrLGU6Yxsv5evRjrHnStW8LcImECQQDwnypVThxZP5d5
-        vxDHV4xFvS0PFucR05TIEtpLvGIGQ8bzol9jz+A4irpIRHnyRfydyJQziS7Svp9E
-        sSlWiOaVAkEA2GR8XZPTXTwtotF4dSSqu0sdERUCyShTAK4/vRjGviH0qITGPk+Z
-        eCQp2ZV0WsY84/6mMRviiBn92+J7hS5TAwJAASRQOB1pxwalOl+svbVtpfsS1qp+
-        KDh/0T89p/RZ5ru1mvxfRYL8BmiqH6OrjHnGjB0ijugMv9VFvja1AoMdzQJBALjo
-        1SUZpunq/Iw/NxHS7Vnyi7oHHERMgvD39VtfCqV6WpiOLOEeH+R78o8NmUngUDP7
-        bIRWcbMfksAMvsRFm4UCQQC3suGb43vEPOv8dGaIX7DxRCuvbgI+3mRn07bZe//i
-        axiQXphcMJArJB4bpxl+Sdq59miHPhHpTIYGN9fVHYr+
-        -----END RSA PRIVATE KEY-----</textarea><br />
-        <label for="publicKey">Public key</label><br />
-        <textarea id="publicKey" cols="66" rows="7">-----BEGIN PUBLIC KEY-----
-        MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDLZL7JkIAxVOLqtEZr+SjJZYqS
-        59ARp3/Z/l5Q6AOWryyrCJI4A/4RjFiZ2lN2a08WGgZuYrM+rk7mXmxQdAX1aUTX
-        k9xxZX2YrO9g2TMxpJzrdDD6AKbDSqz9TLx2mBuLFKr+dJXX4FSg6GQF9ZAlP/Px
-        uriRMQ5kbnqGPiMCvwIDAQAB
-        -----END PUBLIC KEY-----</textarea>
+        <label for="privkey">Private key</label><br />
+        <textarea id="privkey" cols="66" rows="16"></textarea><br />
+        <label for="pubkey">Public key</label><br />
+        <textarea id="pubkey" cols="66" rows="7"></textarea>
       </div>
       <div style="padding-left: 10px;">
         <label for="plainText">평문</label><br />
@@ -59,6 +74,7 @@
         <label for="decryptedText">복호화된 문장</label><br />
         <input type="text" id="decryptedText" style="width:400px;" /><br />
         <button id="encrypt">암호화</button><button id="decrypt">복호화</button>
+        <button id="generate" class="btn btn-primary">Generate New Keys</button>
       </div>
     </div>
   </body>
